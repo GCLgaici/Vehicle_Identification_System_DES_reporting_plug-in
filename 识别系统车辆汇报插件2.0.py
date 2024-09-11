@@ -50,11 +50,17 @@ class Function:
         # 判断是否匹配成功
         if match:
             content = match.group(1)
-            print(f"截取到的内容: {content}")
+            # print(f"截取到的内容: {content}")
             return content
         else:
-            print("未找到匹配的内容")
+            # print("未找到匹配的内容")
             return None
+
+    def w_log(self, num_jl):
+        self.Number_of_executions += 1
+        f = open("./logfile.log", 'a')
+        f.write(num_jl)
+
 class Detect_new_files:
     def __init__(self, num_path):
         self.detect_path = num_path     # 检测新文件路径
@@ -95,7 +101,7 @@ class WeChat_push:
         url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={}&secret={}' \
             .format(self.appID.strip(), self.appSecret.strip())
         response = requests.get(url).json()
-        print(response)
+        # print(response)
         access_token = response.get('access_token')
         return access_token
 
@@ -128,8 +134,8 @@ class Main:
 
 
         self.leadership_car_list = list()   # 汇报车牌
-        self.Vehicle_date_path = r'D:/CODE/Git/Vehicle_Identification_System_DES_reporting_plug-in/BC/新建文件夹/'     # 检测的车辆日期路径
-        self.Log_output_path = './logfile.log'      # 日志输出路径
+        self.Vehicle_date_path = r'D:/新建文件夹/'     # 检测的车辆日期路径
+        self.Log_output_path = './logfile.log'       # 日志输出路径
 
         self.running = False
         ...
@@ -170,7 +176,9 @@ class Main:
 
                         # 过滤一车多图片
                         if ctp_str[0] == 'G':
-                            print(ctp_str)  # 打印来车
+                            c_jtp = ctp_str[0:-4]
+                            print(c_jtp)  # 打印来车
+                            self.function.w_log(c_jtp+"\n")    # 日志
                             # 截取车牌
                             cp = self.function.intercept_license_plate(ctp_str)
                             # 检测是否是汇报车辆
@@ -186,6 +194,7 @@ class Main:
                                         jin_chu = '车出园区'
                                     else:
                                         jin_chu = '车过，检测不到进出'
+                                    print("    " + cp + jin_chu)
                                     self.wechat_push.Vehicle_Submission(cp+jin_chu)
                                 else:
                                     ...
