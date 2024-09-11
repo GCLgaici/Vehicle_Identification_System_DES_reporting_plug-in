@@ -1,7 +1,7 @@
 """
 纳米车辆进出汇报检测系统
 """
-from datetime import datetime
+
 import time
 import requests
 import json
@@ -88,6 +88,7 @@ def wjj_sf_cz(num_path):
         return False
 
 def get_date():
+    from datetime import datetime
     # 获取当前日期和时间
     now = datetime.now()
 
