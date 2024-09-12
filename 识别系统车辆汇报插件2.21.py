@@ -1,5 +1,8 @@
 """
 插件
+
+2.21
+    新增群汇报功能
 """
 
 import requests
@@ -94,6 +97,8 @@ class WeChat_push:
         # 收信人ID即 用户列表中的微信号，
         self.openId = ""
 
+        self.Mass_list = list()     # 群发openid列表
+
         # 车辆报送模板ID
         self.Vehicle_Submission_id = "oi0HXl_BiIvIjW8SP6DUYhnoXD5Z3bqwti2zySLGgY0"
     def get_access_token(self):
@@ -125,6 +130,26 @@ class WeChat_push:
         access_token = self.get_access_token()
         # 3. 发送消息
         self.send_Vehicle_Submission(access_token, message)
+
+    def send_to_the_user(self, access_token, num_openid, message):
+        body = {
+            "touser": num_openid,
+            "template_id": self.Vehicle_Submission_id.strip(),
+            "url": "https://weixin.qq.com",
+            "data": {
+                "message": {
+                    "value": message
+                },
+            }
+        }
+        url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={}'.format(access_token)
+        print(requests.post(url, json.dumps(body)).text)
+        ...
+    def Mass_all(self, message):
+        # 1.获取access_token
+        access_token = self.get_access_token()
+        for zh in self.Mass_list:
+            self.send_to_the_user(access_token, zh, message)
 class Main:
     def __init__(self):
         # 实例类
@@ -144,11 +169,15 @@ class Main:
         self.wechat_push.appID = 'wxfe87182bd1371294'
         self.wechat_push.appSecret = '7a6e5a3f118f1f3317f57fb065e7c06a'
         self.wechat_push.openId = 'ogur66Me6Rpbfg6vx7RvUKgGO8AY'
+        #   群发人员
+        self.wechat_push.Mass_list.append('ogur66Me6Rpbfg6vx7RvUKgGO8AY')
+        self.wechat_push.Mass_list.append('ogur66Io8YI85RejzPZUlqAhzYlY')
+        #   汇报车
         self.leadership_car_list.append('F416')
         self.leadership_car_list.append('NH00')
         self.leadership_car_list.append('E368')
-        self.leadership_car_list.append('057')
-        self.leadership_car_list.append('517')
+        self.leadership_car_list.append('7805')
+        self.leadership_car_list.append('6351')
         self.leadership_car_list.append('XG86')
 
         #
@@ -195,7 +224,10 @@ class Main:
                                     else:
                                         jin_chu = '车过，检测不到进出'
                                     print("    " + cp + jin_chu)
-                                    self.wechat_push.Vehicle_Submission(cp+jin_chu)
+                                    try:
+                                        self.wechat_push.Mass_all(cp+jin_chu)
+                                    except Exception as bc_wb:
+                                        print("数据发送失败\n", bc_wb)
                                 else:
                                     ...
             else:
